@@ -10,22 +10,18 @@ namespace WebApiEx1.Controllers
     public class UserController : Controller
     {
         private readonly IUserService _iUserService;
-        private ILogger<UserController> _logger;
 
-
-        public UserController(IUserService iUserService, ILogger<UserController> logger)
+        public UserController(IUserService iUserService)
         {
             _iUserService = iUserService;
-            _logger = logger;
 
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            _logger.LogInformation($"{this.GetType()},調用");
             // var UserList = await _dbcontext.Users.ToListAsync();
-            var UserList = await _iUserService.GetUserAll();
+            var UserList = await _iUserService.GetAll();
             if (UserList == null)
             {
                 return NotFound();
@@ -36,7 +32,6 @@ namespace WebApiEx1.Controllers
         [HttpGet("{UserId}")]
         public async Task<IActionResult> Get(int UserId)
         {
-            _logger.LogInformation($"{this.GetType()},調用");
             var vUser = await _iUserService.GetById(UserId);
             if (vUser == null)
             {
@@ -48,7 +43,6 @@ namespace WebApiEx1.Controllers
         [HttpGet("Query")]
         public async Task<IActionResult> Get([FromQuery] UserInput input)
         {
-            _logger.LogInformation($"{this.GetType()},調用");
             var vUser = await _iUserService.Get(input);
             if (vUser == null)
             {
@@ -59,9 +53,8 @@ namespace WebApiEx1.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddUser([Bind("UserName,Age,Sex,CountryId,CityId")] User user)
+        public async Task<IActionResult> AddUser([Bind("UserName,Age,Sex,Phone,CityName")] User user)
         {
-            _logger.LogInformation($"{this.GetType()},調用");
             var IsCreated = await _iUserService.AddAsync(user);
             if (IsCreated)
             {
@@ -73,7 +66,6 @@ namespace WebApiEx1.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateUser(User user)
         {
-            _logger.LogInformation($"{this.GetType()},調用");
             var IsUpdate = await _iUserService.UpdateAsync(user);
             if (IsUpdate)
             {
@@ -86,7 +78,6 @@ namespace WebApiEx1.Controllers
         [HttpDelete("{UserId}")]
         public async Task<IActionResult> DeleteUser(int UserId)
         {
-            _logger.LogInformation($"{this.GetType()},調用");
             var IsDelete = await _iUserService.DeleteAsync(UserId);
             if (IsDelete)
             {

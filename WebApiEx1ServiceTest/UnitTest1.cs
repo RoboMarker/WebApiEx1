@@ -1,4 +1,4 @@
-namespace WebApiEx1RepositoryTest
+namespace WebApiEx1ServiceTest
 {
     public class UnitTest1
     {

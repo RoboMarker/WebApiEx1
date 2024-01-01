@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApiEx1Repository.Context;
 
@@ -10,9 +11,10 @@ using WebApiEx1Repository.Context;
 namespace WebApiEx1Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240101063413_InitialCreaete")]
+    partial class InitialCreaete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.25");
@@ -29,13 +31,14 @@ namespace WebApiEx1Repository.Migrations
                     b.Property<string>("CityName")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Phone")
-                        .HasColumnType("TEXT");
+                    b.Property<int?>("Phone")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Sex")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UserName")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("UserId");

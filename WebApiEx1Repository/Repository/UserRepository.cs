@@ -1,9 +1,6 @@
 ﻿using Dapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using WebApiEx1Repository.Context;
 using WebApiEx1Repository.Data;
 using WebApiEx1Repository.Input;
 using WebApiEx1Repository.Interface;
@@ -12,19 +9,17 @@ namespace WebApiEx1Repository.Repository
 {
     public class UserRepository: IUserRepository
     {
-       // private readonly IMsDBConn _msDBConn;
-        public UserRepository()
-        { 
-        
+        private readonly AppDbContext _dbContext;
+        public UserRepository(AppDbContext context)
+        {
+            _dbContext = context;
         }
 
-        public async Task<T?> GetById<T>(string UserId)
+        public async Task<User> GetById(int UserId)
         {
-            var parameter = new DynamicParameters();
-            parameter.Add("UserId", UserId);
-            string sCmd = @"select * from [User] where UserId=@UserId";
-            //return await _msDBConn.QuerySingleAsync<T>(sCmd, parameter);
-            return default(T?);
+               var result=  await  _dbContext.User.Where(x => x.UserId== UserId).FirstOrDefaultAsync();
+                return result;
+            //return new User();
         }
 
         public async Task<List<UserVM>> Get<UserVM>(UserInput input)
@@ -78,75 +73,30 @@ namespace WebApiEx1Repository.Repository
         }
 
 
-        public async Task<IEnumerable<T>> GetAll<T>()
+        public async Task<IList<User>> GetAll()
         {
-            string sCmd = @"select * from [User] ";
-           // var Userlist = await _msDBConn.QueryAsync<T>(sCmd);
-            //return Userlist;
-            return default(IEnumerable<T>);
+            var Userlist = _dbContext.User.ToList();
+            return Userlist;
         }
-        //public virtual IEnumerable<T> Get<T>(  Expression<Func<T, bool>> filter = null,
-        //   Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-        //   string includeProperties = "")
-        //{
-        //    IQueryable<T> query = dbSet;
-
-        //    if (filter != null)
-        //    {
-        //        query = query.Where(filter);
-        //    }
-
-        //    foreach (var includeProperty in includeProperties.Split
-        //        (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-        //    {
-        //        query = query.Include(includeProperty);
-        //    }
-
-        //    if (orderBy != null)
-        //    {
-        //        return orderBy(query).ToList();
-        //    }
-        //    else
-        //    {
-        //        return query.ToList();
-        //    }
-        //}
-
-        public async Task<bool> AddAsync(User user)
+        public  bool Add(User user)
         {
-            List<string> NotMatchList = new List<string>();
-            NotMatchList.Add("UserId");
-            //int iResult = await _msDBConn.AddAsync(user, NotMatchList);
-            int iResult = 0;
-            return (iResult > 0) ? true : false;
-        }
-
-        public async Task<bool> UpdateAsync(User user)
-        {
-            string[] setCol = new string[] { "UserName", "Age", "Sex", "CountryId", "CityId" };
-            string[] ConditionCol = new string[] { "UserId" };
-            //int iResult = await _msDBConn.UpdateAsync<User>( setCol, user, ConditionCol, user);
-
-            int iResult = 0;
-            //int iResult = await _msDBConn.UpdateAsync<User>(setCol, user, ConditionCol, user);
-            return (iResult > 0) ? true : false;
+            _dbContext.User.Add(user);
+            var result =  _dbContext.SaveChanges();
+            return (result > 0)?true:false;
         }
 
         public bool Update(User user)
         {
-            string[] setCol = new string[] { "UserName", "Age", "Sex", "CountryId", "CityId" };
-            string[] ConditionCol = new string[] { "UserId" };
-           // int iResult = _msDBConn.Update<User>(setCol, user, ConditionCol, user);
-            int iResult = 0;
-            return (iResult > 0) ? true : false;
+            _dbContext.User.Update(user);
+            var result = _dbContext.SaveChanges();
+            return (result > 0) ? true : false;
         }
 
-        public async Task<bool> DeleteAsync(User user)
+        public bool Delete(User user)
         {
-            // User user=await GetById<User>(iUserId);
-            //int iResult = await _msDBConn.DeleteAsync<User>(user);
-            int iResult = 0;
-            return (iResult > 0) ? true : false;
+            _dbContext.User.Remove(user);
+            var result = _dbContext.SaveChanges();
+            return (result > 0) ? true : false;
         }
     }
 }

@@ -11,8 +11,8 @@ using WebApiEx1Repository.Context;
 namespace WebApiEx1Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20231231130209_Initdb")]
-    partial class Initdb
+    [Migration("20240101065105_sercordCreate")]
+    partial class sercordCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,22 +28,21 @@ namespace WebApiEx1Repository.Migrations
                     b.Property<int?>("Age")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("CityId")
+                    b.Property<string>("CityName")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("CountryId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Phone")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Sex")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UserName")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Users");
+                    b.ToTable("User");
                 });
 #pragma warning restore 612, 618
         }

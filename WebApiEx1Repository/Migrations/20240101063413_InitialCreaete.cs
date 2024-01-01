@@ -4,12 +4,12 @@
 
 namespace WebApiEx1Repository.Migrations
 {
-    public partial class Initdb : Migration
+    public partial class InitialCreaete : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "User",
                 columns: table => new
                 {
                     UserId = table.Column<int>(type: "INTEGER", nullable: false)
@@ -17,19 +17,19 @@ namespace WebApiEx1Repository.Migrations
                     UserName = table.Column<string>(type: "TEXT", nullable: false),
                     Age = table.Column<int>(type: "INTEGER", nullable: true),
                     Sex = table.Column<int>(type: "INTEGER", nullable: false),
-                    CountryId = table.Column<int>(type: "INTEGER", nullable: true),
-                    CityId = table.Column<string>(type: "TEXT", nullable: true)
+                    Phone = table.Column<int>(type: "INTEGER", nullable: true),
+                    CityName = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.UserId);
+                    table.PrimaryKey("PK_User", x => x.UserId);
                 });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "User");
         }
     }
 }

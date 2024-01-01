@@ -10,15 +10,14 @@ namespace WebApiEx1Repository.Interface
 {
     public interface IUserRepository
     {
-        Task<T?> GetById<T>(string UserId);
-        Task<IEnumerable<User>> GetAll<User>();
+        Task<User> GetById(int UserId);
         Task<List<UserVM>> Get<UserVM>(UserInput input);
-        Task<bool> AddAsync(User user);
+        Task<IList<User>> GetAll();
 
-        Task<bool> UpdateAsync(User user);
+        bool Add(User user);
 
         bool Update(User user);
 
-        Task<bool> DeleteAsync(User user);
+        bool Delete(User user);
     }
 }

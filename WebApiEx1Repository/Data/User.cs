@@ -8,16 +8,15 @@ using System.Threading.Tasks;
 
 namespace WebApiEx1Repository.Data
 {
-    public partial class User
+    public  class User
     {
         public int UserId { get; set; }
-        [Required]
         [DisplayName("使用者名稱")]
         public string? UserName { get; set; }
         public int? Age { get; set; }
         public eSex Sex { get; set; }
-        public int? CountryId { get; set; }
-        public string? CityId { get; set; }
+        public string? Phone { get; set; }
+        public string? CityName { get; set; }
 
         public enum eSex
         {

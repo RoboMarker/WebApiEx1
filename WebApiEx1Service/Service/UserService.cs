@@ -19,10 +19,10 @@ namespace WebApiEx1Service.Service
 
         }
 
-        public async Task<User?> GetById(int UserId)
+        public async Task<User> GetById(int UserId)
         {
             if (UserId <= 0) return null;
-            var User = await _userRepository.GetById<User>(UserId.ToString());
+            var User = await _userRepository.GetById(UserId);
             return User;
         }
 
@@ -32,23 +32,20 @@ namespace WebApiEx1Service.Service
             return User;
         }
 
-
-        public async Task<IEnumerable<User>> GetUserAll()
+        public async Task<IList<User>> GetAll()
         {
-            // var userslist =  _GenrRepo.GetAll<User>();
-            var userslist = await _userRepository.GetAll<User>();
-            return userslist;
+            var User = await _userRepository.GetAll();
+            return User;
         }
 
         public async Task<bool> AddAsync(User user)
         {
             if (user == null) return false;
 
-            var newUser = await _userRepository.GetById<User>(user.UserId.ToString());
+            var newUser = await _userRepository.GetById(user.UserId);
             if (newUser != null) return false;
 
-            bool bResult = await _userRepository.AddAsync(user);
-           // _msDBConn.Commit();
+            bool bResult =  _userRepository.Add(user);
             return bResult;
         }
 
@@ -56,7 +53,7 @@ namespace WebApiEx1Service.Service
         {
             if (updateUser == null) return false;
 
-            var updateHaveUser = await _userRepository.GetById<User>(updateUser.UserId.ToString());
+            var updateHaveUser = await _userRepository.GetById(updateUser.UserId);
             if (updateHaveUser == null) return false;
 
             var newUser = new User();
@@ -64,11 +61,11 @@ namespace WebApiEx1Service.Service
             newUser.UserId = updateUser.UserId;
             newUser.Sex = updateUser.Sex;
             newUser.Age = updateUser.Age;
-            newUser.CityId = updateUser.CityId;
-            newUser.CountryId = updateUser.CountryId;
+            newUser.Phone = updateUser.Phone;
+            newUser.CityName = updateUser.CityName;
 
 
-            bool bResult = await _userRepository.UpdateAsync(newUser);
+            bool bResult = _userRepository.Update(newUser);
            // _msDBConn.Commit();
             return bResult;
         }
@@ -77,10 +74,10 @@ namespace WebApiEx1Service.Service
         {
             if (UserId <= 0) return false;
 
-            var newUser = await _userRepository.GetById<User>(UserId.ToString());
+            var newUser = await _userRepository.GetById(UserId);
             if (newUser == null) return false;
 
-            bool bResult = await _userRepository.DeleteAsync(newUser);
+            bool bResult =  _userRepository.Delete(newUser);
             //_msDBConn.Commit();
             return bResult;
         }

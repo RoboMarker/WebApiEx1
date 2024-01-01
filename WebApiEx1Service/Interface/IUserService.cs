@@ -11,10 +11,9 @@ namespace WebApiEx1Service.Interface
 {
     public interface IUserService
     {
-        Task<User?> GetById(int UserId);
+        Task<User> GetById(int UserId);
 
-        Task<IEnumerable<User>> GetUserAll();
-
+        Task<IList<User>> GetAll();
         Task<List<UserVM>> Get(UserInput input);
 
         Task<bool> AddAsync(User user);
