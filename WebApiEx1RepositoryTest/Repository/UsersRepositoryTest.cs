@@ -1,227 +1,183 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using System.Numerics;
 using WebApiEx1Repository.Context;
 using WebApiEx1Repository.Data;
+using WebApiEx1Repository.Helper;
 using WebApiEx1Repository.Interface;
 using WebApiEx1Repository.Repository;
-using WebApiEx1Repository.ViewModels;
 using WebApiEx1RepositoryTest.MockData;
-using System.Threading.Tasks;
-using Xunit;
-using Microsoft.EntityFrameworkCore.InMemory;
 
 namespace WebApiEx1RepositoryTest.Repository
 {
-    public class UsersRepositoryTest : IDisposable
+    public class UsersRepositoryTest
     {
         private readonly IUserRepository _userRepository;
         private readonly Mock<AppDbContext> _dbContextMock;
         private readonly Mock<DbSet<User>> _userDbSetMock;
         private readonly DbContextOptions<AppDbContext> _options;
+        private AppDbContext _context;
+        public AppDbContext CreateDbContext()
+        {
+            var _options = new DbContextOptionsBuilder<AppDbContext>()
+         .UseInMemoryDatabase(databaseName: "TestDatabase")
+         .Options;
+            return new AppDbContext(_options);
+        }
+
+        public void Insert(AppDbContext dbCtx)
+        {
+            dbCtx.User.Add(MockData_ModelsData_User.GetUser(1.ToString()));
+            dbCtx.SaveChanges();
+        }
+
         public UsersRepositoryTest()
         {
             _dbContextMock = new Mock<AppDbContext>();
-            _userRepository =new UserRepository(_dbContextMock.Object);
+            _userRepository = new UserRepository(_dbContextMock.Object);
             _userDbSetMock = new Mock<DbSet<User>>();
-            // 使用内存中数据库配置选项
-            _options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDatabase")
-                .Options;
 
-            using (var context = new AppDbContext(_options))
+            _context = new AppDbContext(TestDBConnection.GetConnection());
+            if (_context != null)
             {
-                context.User.Add(MockData_ModelsData_User.GetUser(1.ToString()));
-                context.User.Add(MockData_ModelsData_User.GetUser(2.ToString()));
-                context.SaveChanges();
+                _context.Database.EnsureDeleted();
+                _context.Database.EnsureCreated();
             }
+            _userRepository = new UserRepository(_context);
+        }
+
+        [Fact]
+        public async Task GetAll_ReturnUserList_IsSuccess()
+        {
+            LoadUsersData(_context);
+
+            var result = await _userRepository.GetAll();
+            var userlist = MockData_ModelsData_User.GetUserAll();
+
+            Assert.NotEmpty(result);
+            Assert.Equal(userlist.Count(), result.Count());
 
         }
 
 
         [Fact]
-        public async Task GetAll_ReturnUserList_WhenUserExists()
+        public async Task GetAll_ReturnUserList_IsFail()
         {
-            //int iUserId = 1;
-            //var user = MockData_ModelsData_User.GetUser(iUserId.ToString());
+            var result = await _userRepository.GetAll();
 
-            //_dbContextMock.Setup(x => x.User).Returns(_userDbSetMock.Object);
-            //_userDbSetMock.Setup(x => x.FindAsync(iUserId)).ReturnsAsync(user);
-
-
-            //// Act
-            //var result = await _userRepository.GetById(iUserId);
-
-            //Assert.NotNull(result);
-            //Assert.Equal(iUserId, result.UserId);
-            //Assert.Equal("sam", result.UserName);
-
-            // Arrange
-            using (var context = new AppDbContext(_options))
-            {
-                var userRepository = new UserRepository(context);
-
-                // Act
-                var result = await userRepository.GetById(1);
-
-                // Assert
-                Assert.NotNull(result);
-                Assert.Equal(1, result.UserId);
-                // 根据你的业务逻辑和预期结果添加更多断言
-            }
+            Assert.Empty(result);
         }
 
         [Fact]
         public async Task GetById_ReturnUser_WhenUserExists()
         {
+            LoadUsersData(_context);
             int iUserId = 1;
-            //Arrange
-            var user = MockData_ModelsData_User.GetUser(iUserId.ToString());
 
-
-            var dbSetMock = DbContextMockHelper.CreateDbSetMock(user);
-            _dbContextMock.Setup(x => x.User).Returns(dbSetMock.Object);
-
-            var userRepository = new UserRepository(_dbContextMock.Object);
-            //Act
-            var actualUser = await _userRepository.GetById(iUserId);
+            var result = await _userRepository.GetById(iUserId);
             //Assert
-            Assert.NotNull(actualUser);
+            Assert.NotNull(result);
+            Assert.Equal(1, result.UserId);
+            Assert.Equal("sam", result.UserName);
         }
 
         [Fact]
         public async Task GetById_ReturnNull_WhenUserNotExists()
         {
-            int iUserId = 3;
-            //Arrange
-            var user = MockData_ModelsData_User.GetUser(iUserId.ToString());
+            int iUserId = 0;
+            var result = await _userRepository.GetById(iUserId);
 
-            _dbContextMock.Setup(x => x.User).Returns(_userDbSetMock.Object);
-            _userDbSetMock.Setup(x => x.FindAsync(iUserId)).ReturnsAsync(user);
-            //Act
-            var actualUser = await _userRepository.GetById(iUserId);
-            //Assert
-            Assert.Null(actualUser);
+            Assert.Null(result);
         }
 
-        [Fact]
-        public async Task GetAll_ReturnNull_IsFail()
-        {
-            //int iUserId = 1;
-            //var userlist = MockData_ModelsData_User.GetUserAll();
-
-            //_dbContextMock.Setup(x => x.User).Returns(_userDbSetMock.Object);
-            //_userDbSetMock.Setup(x => x.User).ReturnsAsync(_userDbSetMock.Object);
-
-
-            //// Act
-            //var result = await _userRepository.GetAll();
-
-            //// Assert
-            //Assert.NotNull(result);
-            //Assert.Equal(userlist.Count(), result.Count);
-        }
 
         [Fact]
         public async Task Add_ReturnTrue_WhenIsSuccess()
         {
-            int iIsSunccess = 1;
- 
-            User user = new User();
+            LoadUsersData(_context);
 
-            _dbContextMock.Setup(x => x.User.Add(user)).Verifiable();
-            _dbContextMock.Setup(x => x.SaveChanges()).Returns(iIsSunccess);
+            var newUser = MockData_ModelsData_User.AddUser();
+            var result = _userRepository.Add(newUser);
+            var userlist = MockData_ModelsData_User.GetUserAll();
 
+            Assert.True(result);
 
-            var actualResult =  _userRepository.Add(user);
-
-            Assert.True(actualResult);
+            var addedUser = await _userRepository.GetById(newUser.UserId);
+            Assert.NotNull(addedUser);
+            Assert.Equal(newUser.UserId, addedUser.UserId);
         }
 
         [Fact]
         public async Task Add_ReturnFalse_WhenIsFailed()
         {
-            int iIsSunccess = 0;
+            var result = false;
 
-            User user = new User();
+            result = _userRepository.Add(null);
 
-            _dbContextMock.Setup(x => x.User.Add(user)).Verifiable();
-            _dbContextMock.Setup(x => x.SaveChanges()).Returns(iIsSunccess);
-
-
-            var actualResult =  _userRepository.Add(user);
-
-            Assert.False(actualResult);
+            Assert.False(result);
         }
 
 
         [Fact]
         public async Task Update_ReturnTrue_WhenIsSuccess()
         {
-            int iIsSunccess = 1;
+            LoadUsersData(_context);
+            var user = MockData_ModelsData_User.GetUser(1.ToString());
 
-            User user = new User();
+            var existingUser = await _userRepository.GetById(user.UserId);
+            var result = _userRepository.Update(existingUser);
 
-            _dbContextMock.Setup(x => x.User.Update(user)).Verifiable();
-            _dbContextMock.Setup(x => x.SaveChanges()).Returns(iIsSunccess);
-
-
-            var actualResult = _userRepository.Add(user);
-
-            Assert.True(actualResult);
+            Assert.True(result);
         }
 
         [Fact]
         public async Task Update_ReturnFalse_WhenIsFailed()
         {
-            int iIsSunccess = 0;
+            LoadUsersData(_context);
+            var nonExistingUserId = 0;
 
-            User user = new User();
+            var existingUser = await _userRepository.GetById(nonExistingUserId);
+            Assert.Null(existingUser);
+            var result = _userRepository.Update(existingUser);
 
-            _dbContextMock.Setup(x => x.User.Update(user)).Verifiable();
-            _dbContextMock.Setup(x => x.SaveChanges()).Returns(iIsSunccess);
-
-
-            var actualResult = _userRepository.Add(user);
-
-            Assert.False(actualResult);
+            Assert.False(result);
         }
 
         [Fact]
         public async Task Delete_ReturnTrue_WhenIsSuccess()
         {
-            int iIsSunccess = 1;
+            LoadUsersData(_context);
+            var user = MockData_ModelsData_User.GetUser(1.ToString());
 
-            User user = new User();
+            var existingUser = await _userRepository.GetById(user.UserId);
+            var result = _userRepository.Delete(existingUser);
 
-            _dbContextMock.Setup(x => x.User.Remove(user)).Verifiable();
-            _dbContextMock.Setup(x => x.SaveChanges()).Returns(iIsSunccess);
-
-
-            var actualResult = _userRepository.Add(user);
-
-            Assert.True(actualResult);
+            Assert.True(result);
         }
 
         [Fact]
         public async Task Delete_ReturnFalse_WhenIsFailed()
         {
-            int iIsSunccess = 0;
+            LoadUsersData(_context);
+            var nonExistingUserId = 0;
 
-            User user = new User();
+            var existingUser = await _userRepository.GetById(nonExistingUserId);
+            Assert.Null(existingUser);
+            var result = _userRepository.Delete(existingUser);
 
-            _dbContextMock.Setup(x => x.User.Remove(user)).Verifiable();
-            _dbContextMock.Setup(x => x.SaveChanges()).Returns(iIsSunccess);
-
-
-            var actualResult = _userRepository.Add(user);
-
-            Assert.False(actualResult);
+            Assert.False(result);
         }
 
-        public void Dispose()
+
+        public void LoadUsersData(AppDbContext context)
         {
-            // 在测试完成后清理资源（如果有必要）
+            var UserList = MockData_ModelsData_User.GetUserAll();
+            foreach (var user in UserList)
+            {
+                context.User.Add(user);
+                context.SaveChanges();
+            }
+
         }
     }
 }

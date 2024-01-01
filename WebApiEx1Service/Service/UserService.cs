@@ -11,12 +11,9 @@ namespace WebApiEx1Service.Service
     {
         private readonly IUserRepository _userRepository;
 
-       // private readonly AppDbContext _context;
         public UserService( IUserRepository userRepository)
         {
             _userRepository = userRepository;
-
-
         }
 
         public async Task<User> GetById(int UserId)
@@ -26,13 +23,8 @@ namespace WebApiEx1Service.Service
             return User;
         }
 
-        public async Task<List<UserVM>> Get(UserInput input)
-        {
-            var User = await _userRepository.Get<UserVM>(input);
-            return User;
-        }
 
-        public async Task<IList<User>> GetAll()
+        public async Task<IEnumerable<User>> GetAll()
         {
             var User = await _userRepository.GetAll();
             return User;
@@ -56,17 +48,15 @@ namespace WebApiEx1Service.Service
             var updateHaveUser = await _userRepository.GetById(updateUser.UserId);
             if (updateHaveUser == null) return false;
 
-            var newUser = new User();
-            newUser.UserName = updateUser.UserName;
-            newUser.UserId = updateUser.UserId;
-            newUser.Sex = updateUser.Sex;
-            newUser.Age = updateUser.Age;
-            newUser.Phone = updateUser.Phone;
-            newUser.CityName = updateUser.CityName;
 
+            updateHaveUser.UserName = updateUser.UserName;
+            updateHaveUser.UserId = updateUser.UserId;
+            updateHaveUser.Sex = updateUser.Sex;
+            updateHaveUser.Age = updateUser.Age;
+            updateHaveUser.Phone = updateUser.Phone;
+            updateHaveUser.CityName = updateUser.CityName;
 
-            bool bResult = _userRepository.Update(newUser);
-           // _msDBConn.Commit();
+            bool bResult = _userRepository.Update(updateHaveUser);
             return bResult;
         }
 
@@ -78,7 +68,6 @@ namespace WebApiEx1Service.Service
             if (newUser == null) return false;
 
             bool bResult =  _userRepository.Delete(newUser);
-            //_msDBConn.Commit();
             return bResult;
         }
     }

@@ -13,8 +13,7 @@ namespace WebApiEx1Service.Interface
     {
         Task<User> GetById(int UserId);
 
-        Task<IList<User>> GetAll();
-        Task<List<UserVM>> Get(UserInput input);
+        Task<IEnumerable<User>> GetAll();
 
         Task<bool> AddAsync(User user);
         Task<bool> UpdateAsync(User user);

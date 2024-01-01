@@ -19,67 +19,21 @@ namespace WebApiEx1Repository.Repository
         {
                var result=  await  _dbContext.User.Where(x => x.UserId== UserId).FirstOrDefaultAsync();
                 return result;
-            //return new User();
-        }
-
-        public async Task<List<UserVM>> Get<UserVM>(UserInput input)
-        {
-            List<UserVM> result = new List<UserVM>();
-            var parameter = new DynamicParameters();
-            string sSelectCount = "select COUNT(*) total";
-            string sSelect = "select * ";
-            string sCmd = @" from [User] where 1=1 ";
-            if (input.UserId > 0)
-            {
-                parameter.Add("UserId", input.UserId);
-                sCmd += "and UserId=@UserId";
-            }
-            if (!string.IsNullOrWhiteSpace(input.UserName))
-            {
-                parameter.Add("UserName", input.UserName);
-                sCmd += "and UserName=@UserName";
-            }
-            if (input.Age > 0)
-            {
-                parameter.Add("UserName", input.Age);
-                sCmd += "and Age=@Age";
-            }
-            if (!string.IsNullOrWhiteSpace(input.CityId))
-            {
-                parameter.Add("UserName", input.CityId);
-                sCmd += "and CityId=@CityId";
-            }
-            if (input.CountryId > 0)
-            {
-                parameter.Add("UserName", input.CountryId);
-                sCmd += "and CountryId=@CountryId";
-            }
-
-           // var vTotal = await _msDBConn.ExecuteScalarAsync<int>(sSelectCount + sCmd, parameter);
-            //result.TotalRecords = vTotal;
-            //if (vTotal == 0)
-            //    return result;
-
-            //string sOrder = $@"
-            //            order by UserId
-            //            offset {(input.Page - 1) * input.PageSize} rows fetch next {input.PageSize} rows only;
-            //            ";
-
-            //sCmd = sSelect + sCmd + sOrder;
-            //var UserData = await _msDBConn.QueryAsync<UserVM>(sCmd, parameter);
-            //result.Data = UserData.ToList();
-            //return result;
-            return new List<UserVM>();
         }
 
 
-        public async Task<IList<User>> GetAll()
+        public async Task<IEnumerable<User>> GetAll()
         {
-            var Userlist = _dbContext.User.ToList();
-            return Userlist;
+            return  _dbContext.User.ToList();
+  
         }
         public  bool Add(User user)
         {
+            if (user == null)
+            {
+                // 实体为null，删除失败
+                return false;
+            }
             _dbContext.User.Add(user);
             var result =  _dbContext.SaveChanges();
             return (result > 0)?true:false;
@@ -87,13 +41,30 @@ namespace WebApiEx1Repository.Repository
 
         public bool Update(User user)
         {
-            _dbContext.User.Update(user);
+            try
+            {
+                if (user == null)
+                {
+                    // 实体为null，删除失败
+                    return false;
+                }
+                _dbContext.User.Update(user);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
             var result = _dbContext.SaveChanges();
             return (result > 0) ? true : false;
         }
 
         public bool Delete(User user)
         {
+            if (user == null)
+            {
+                // 实体为null，删除失败
+                return false;
+            }
             _dbContext.User.Remove(user);
             var result = _dbContext.SaveChanges();
             return (result > 0) ? true : false;

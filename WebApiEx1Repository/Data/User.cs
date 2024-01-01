@@ -10,6 +10,7 @@ namespace WebApiEx1Repository.Data
 {
     public  class User
     {
+
         public int UserId { get; set; }
         [DisplayName("使用者名稱")]
         public string? UserName { get; set; }

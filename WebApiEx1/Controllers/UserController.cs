@@ -20,7 +20,6 @@ namespace WebApiEx1.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            // var UserList = await _dbcontext.Users.ToListAsync();
             var UserList = await _iUserService.GetAll();
             if (UserList == null)
             {
@@ -33,17 +32,6 @@ namespace WebApiEx1.Controllers
         public async Task<IActionResult> Get(int UserId)
         {
             var vUser = await _iUserService.GetById(UserId);
-            if (vUser == null)
-            {
-                return NotFound();
-            }
-            return Ok(vUser);
-        }
-
-        [HttpGet("Query")]
-        public async Task<IActionResult> Get([FromQuery] UserInput input)
-        {
-            var vUser = await _iUserService.Get(input);
             if (vUser == null)
             {
                 return NotFound();

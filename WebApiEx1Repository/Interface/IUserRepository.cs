@@ -11,8 +11,8 @@ namespace WebApiEx1Repository.Interface
     public interface IUserRepository
     {
         Task<User> GetById(int UserId);
-        Task<List<UserVM>> Get<UserVM>(UserInput input);
-        Task<IList<User>> GetAll();
+        Task<IEnumerable<User>> GetAll();
+
 
         bool Add(User user);
 

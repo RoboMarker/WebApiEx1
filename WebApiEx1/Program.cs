@@ -1,8 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using WebApiEx1Repository;
-using WebApiEx1Repository.Context;
-using WebApiEx1Repository.Repository;
 using WebApiEx1Service.Interface;
 using WebApiEx1Service.Service;
 
@@ -15,15 +11,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-//builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddDIServices(builder.Configuration);
 builder.Services.AddTransient<IUserService, UserService>();
 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
